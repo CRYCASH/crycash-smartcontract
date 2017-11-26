@@ -12,7 +12,7 @@ contract CryCashToken is StandardToken {
   **/
 
   string public constant name = "CryCash Token";
-  string public constant symbol = "CYC";
+  string public constant symbol = "CRC";
   uint8 public constant decimals = 18;
 
   uint256 public constant INITIAL_SUPPLY = 0;
