@@ -3,7 +3,7 @@ pragma solidity ^0.4.17;
 import './CryCashToken.sol';
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 
-contract CYCICO {  
+contract CRCICO {  
 
   using SafeMath for uint256;
 
@@ -11,7 +11,7 @@ contract CYCICO {
   * Events
   **/
 
-  event ForeignBuy(address holder, uint cycValue, string txHash);
+  event ForeignBuy(address holder, uint crcValue, string txHash);
   event RunIco();
   event PauseIco();
   event FinishIco(address teamFund, address partnersFund, address longTermFund);
@@ -20,7 +20,7 @@ contract CYCICO {
   * State
   **/
 
-  CryCashToken public CYCToken;
+  CryCashToken public CRCToken;
 
   address public team;
   address public tradeRobot;
@@ -37,8 +37,8 @@ contract CYCICO {
   * Constructor
   ***/
 
-  function CYCICO(address _team, address _tradeRobot, uint256 _tokenPrice) internal {
-    CYCToken = new CryCashToken(this);
+  function CRCICO(address _team, address _tradeRobot, uint256 _tokenPrice) internal {
+    CRCToken = new CryCashToken(this);
     team = _team;
     tradeRobot = _tradeRobot;
     tokenPrice = _tokenPrice;
@@ -68,16 +68,16 @@ contract CYCICO {
 
   /***
   * @dev his is called by our friendly robot to allow 
-  * you to buy CYC for various cryptos.
+  * you to buy CRC for various cryptos.
   ***/
-  function foreignBuy(address _investor, uint256 _cycValue, string _txHash)
+  function foreignBuy(address _investor, uint256 _crcValue, string _txHash)
     external robotOnly
   {
     require(icoState == IcoState.Running);
-    require(_cycValue > 0);
+    require(_crcValue > 0);
 
-    buy(_investor, _cycValue);
-    ForeignBuy(_investor, _cycValue, _txHash);
+    buy(_investor, _crcValue);
+    ForeignBuy(_investor, _crcValue, _txHash);
   }
 
   /***
@@ -122,15 +122,15 @@ contract CYCICO {
   {
     require(icoState == IcoState.Running || icoState == IcoState.Paused);
 
-    uint256 totalSupply = CYCToken.totalSupply();
+    uint256 totalSupply = CRCToken.totalSupply();
 
     // send funds to team/partners + support long term reserve
-    CYCToken.mint(_teamFund, (totalSupply / 100).mul(15)); // 15%
-    CYCToken.mint(_partnersFund, (totalSupply / 100).mul(10)); // 10%
-    CYCToken.mint(_longTermFund, (totalSupply / 100).mul(15)); // 15%
+    CRCToken.mint(_teamFund, (totalSupply / 100).mul(15)); // 15%
+    CRCToken.mint(_partnersFund, (totalSupply / 100).mul(10)); // 10%
+    CRCToken.mint(_longTermFund, (totalSupply / 100).mul(15)); // 15%
 
     // finish mint new tokens
-    CYCToken.finishMinting();
+    CRCToken.finishMinting();
 
     // finish state
     icoState = IcoState.Finished;
@@ -143,10 +143,10 @@ contract CYCICO {
   * Private functions
   ***/
 
-  function buy(address _investor, uint _cycValue) internal {
+  function buy(address _investor, uint _crcValue) internal {
     require(icoState == IcoState.Running);
 
-    CYCToken.mint(_investor, _cycValue);
-    tokensSold += _cycValue;
+    CRCToken.mint(_investor, _crcValue);
+    tokensSold += _crcValue;
   }
 }
