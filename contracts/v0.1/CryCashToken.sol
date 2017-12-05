@@ -1,11 +1,14 @@
 pragma solidity ^0.4.17;
 
 import 'zeppelin-solidity/contracts/token/StandardToken.sol';
+import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 
 /**
  * @title CryCashToken
  */
 contract CryCashToken is StandardToken {
+
+  using SafeMath for uint256;
 
   /**
   * Initial token state
@@ -33,7 +36,7 @@ contract CryCashToken is StandardToken {
   /**
    * @dev Constructor for creatte token.
    */
-  function CryCashToken(address _ico) {
+  function CryCashToken(address _ico) public {
     totalSupply = INITIAL_SUPPLY;
     balances[msg.sender] = INITIAL_SUPPLY;
     ico = _ico;
@@ -48,6 +51,7 @@ contract CryCashToken is StandardToken {
   function mint(address _to, uint256 _amount) canMint public returns (bool) {
     require(msg.sender == ico);
     require(_amount != 0);
+    require(mintingFinished == false);
 
     totalSupply = totalSupply.add(_amount);
     balances[_to] = balances[_to].add(_amount);
