@@ -51,7 +51,6 @@ contract CryCashToken is StandardToken {
   function mint(address _to, uint256 _amount) canMint public returns (bool) {
     require(msg.sender == ico);
     require(_amount != 0);
-    require(mintingFinished == false);
 
     totalSupply = totalSupply.add(_amount);
     balances[_to] = balances[_to].add(_amount);
