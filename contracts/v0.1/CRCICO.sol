@@ -4,14 +4,13 @@ import './CryCashToken.sol';
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 
 contract CRCICO {  
-
   using SafeMath for uint256;
 
   /***
   * Events
   **/
 
-  event ForeignBuy(address holder, uint crcValue, string txHash);
+  event ForeignBuy(address holder, uint256 crcValue, string txHash);
   event RunIco();
   event PauseIco();
   event FinishIco(address teamFund, address partnersFund, address longTermFund);
@@ -31,13 +30,13 @@ contract CRCICO {
   uint256 public tokenPrice;
 
   enum IcoState { Created, Running, Paused, Finished }
-  IcoState icoState = IcoState.Created;
+  IcoState public icoState = IcoState.Created;
 
   /***
   * Constructor
   ***/
 
-  function CRCICO(address _team, address _tradeRobot, uint256 _tokenPrice) internal {
+  function CRCICO(address _team, address _tradeRobot, uint256 _tokenPrice) {
     CRCToken = new CryCashToken(this);
     team = _team;
     tradeRobot = _tradeRobot;
@@ -70,9 +69,7 @@ contract CRCICO {
   * @dev his is called by our friendly robot to allow 
   * you to buy CRC for various cryptos.
   ***/
-  function foreignBuy(address _investor, uint256 _crcValue, string _txHash)
-    external robotOnly
-  {
+  function foreignBuy(address _investor, uint256 _crcValue, string _txHash) external robotOnly {
     require(icoState == IcoState.Running);
     require(_crcValue > 0);
 
@@ -88,7 +85,7 @@ contract CRCICO {
   }
 
   function setTokenPrice(uint256 _tokenPrice) external teamOnly {
-    tokenPrice = _tokenPrice;
+    tokenPrice = _tokenPrice / 1000;
   }
 
   /***
@@ -143,7 +140,7 @@ contract CRCICO {
   * Private functions
   ***/
 
-  function buy(address _investor, uint _crcValue) internal {
+  function buy(address _investor, uint256 _crcValue) internal {
     require(icoState == IcoState.Running);
 
     CRCToken.mint(_investor, _crcValue);
