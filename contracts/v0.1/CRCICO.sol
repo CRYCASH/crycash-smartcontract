@@ -27,6 +27,7 @@ contract CRCICO {
   modifier robotOnly {require(msg.sender == tradeRobot); _;}
 
   uint256 public tokensSold = 0;
+  uint256 public ICOTotalSupply = 0;
   uint256 public tokenPrice;
 
   enum IcoState { Created, Running, Paused, Finished }
@@ -54,9 +55,9 @@ contract CRCICO {
 
   function buyFor(address _investor) public payable {
     require(icoState == IcoState.Running);
-    require(msg.value >= tokenPrice);
+    require(msg.value > 0);
 
-    uint256 tokens = msg.value / tokenPrice;
+    uint256 tokens = msg.value * tokenPrice;
 
     buy(_investor, tokens);
   }
@@ -73,6 +74,7 @@ contract CRCICO {
     require(icoState == IcoState.Running);
     require(_crcValue > 0);
 
+
     buy(_investor, _crcValue);
     ForeignBuy(_investor, _crcValue, _txHash);
   }
@@ -85,7 +87,7 @@ contract CRCICO {
   }
 
   function setTokenPrice(uint256 _tokenPrice) external teamOnly {
-    tokenPrice = _tokenPrice / 1000;
+    tokenPrice = _tokenPrice;
   }
 
   /***
@@ -119,12 +121,16 @@ contract CRCICO {
   {
     require(icoState == IcoState.Running || icoState == IcoState.Paused);
 
-    uint256 totalSupply = CRCToken.totalSupply();
+    uint256 CRCTotalSupply = CRCToken.totalSupply();
 
     // send funds to team/partners + support long term reserve
-    CRCToken.mint(_teamFund, (totalSupply / 100).mul(15)); // 15%
-    CRCToken.mint(_partnersFund, (totalSupply / 100).mul(10)); // 10%
-    CRCToken.mint(_longTermFund, (totalSupply / 100).mul(15)); // 15%
+    CRCToken.mint(_teamFund, (CRCTotalSupply / 60).mul(15)); // 15%
+    CRCToken.mint(_partnersFund, (CRCTotalSupply / 60).mul(10)); // 10%
+    CRCToken.mint(_longTermFund, (CRCTotalSupply / 60).mul(15)); // 15%
+
+    ICOTotalSupply += (CRCTotalSupply / 60).mul(15);
+    ICOTotalSupply += (CRCTotalSupply / 60).mul(10);
+    ICOTotalSupply += (CRCTotalSupply / 60).mul(15);
 
     // finish mint new tokens
     CRCToken.finishMinting();
@@ -136,6 +142,10 @@ contract CRCICO {
   }
 
 
+  function withdrawEther(uint _value) external teamOnly {
+    team.transfer(_value);
+  }
+
   /***
   * Private functions
   ***/
@@ -145,5 +155,6 @@ contract CRCICO {
 
     CRCToken.mint(_investor, _crcValue);
     tokensSold += _crcValue;
+    ICOTotalSupply += _crcValue;
   }
 }
